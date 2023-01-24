@@ -23,7 +23,7 @@ export function Home() {
     }); */
 
   const [userName, setUserName] = useState("");
-  const { hasVehiclePlate, user } = useAuth();
+  const { hasVehiclePlate, user, vehicleId } = useAuth();
 
   const appNavigation = useNavigation<AppNavigatorRoutesProps>();
   const tabNavigation = useNavigation<TabNavigatorRoutesProps>();
@@ -43,6 +43,14 @@ export function Home() {
   function handleChangeVehicle() {
     appNavigation.navigate("changevehicle");
   }
+
+  /* async function loadVehicleData() { 
+    try {
+      
+    } catch (error) {
+      
+    }
+  } */
 
   /* function handleRegisterDriversLicense() {
         navigation.navigate("driverslicenseinfosrequest");
@@ -64,6 +72,9 @@ export function Home() {
       
     }))
  */
+/* useEffect(() => {
+
+}); */
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView

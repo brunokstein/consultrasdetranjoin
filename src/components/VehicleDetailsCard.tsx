@@ -12,8 +12,8 @@ import { Ionicons } from "@expo/vector-icons";
 type Props = {
   vehicleData: VehicleDTO;
   vehicleOwnerData: VehicleOwnerDTO;
-  vehicleFromDatabase: VehicleGetInDatabaseDTO;
-  changeVehicle: () => void;
+  vehicleFromDatabase?: VehicleGetInDatabaseDTO;
+  changeVehicle?: () => void;
 };
 
 export function VehicleDetailsCard({
@@ -49,7 +49,7 @@ export function VehicleDetailsCard({
             Placa:
           </Text>
           <Text fontSize="sm" fontFamily="body" color="blue.500" ml={2}>
-            {vehicleData.placa  ? vehicleData.placa : vehicleFromDatabase.data.placa}
+            {vehicleData.placa}
           </Text>
         </HStack>
         <HStack p={1} alignItems="center" justifyContent="space-between">

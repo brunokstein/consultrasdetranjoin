@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { ScrollView, TouchableOpacity } from "react-native";
+import { ScrollView } from "react-native";
 import { VStack, Text, useToast } from "native-base";
 import { useAuth } from "@hooks/useAuth";
 
@@ -34,8 +34,8 @@ export function Vehicle() {
     hasVehiclePlate,
     saveVehicleDataInDatabase,
     vehicleId,
-    loadVehicleDataFromDatabase,
     vehicleDatabase,
+    loadVehicleDataFromStorage,
   } = useAuth();
 
   /*     async function fetchVehicle() {
@@ -85,11 +85,9 @@ export function Vehicle() {
 
   async function fetchVehicle() {
     try {
+      console.log("AQUI");
       setIsLoadingVehicleData(true);
-      console.log(vehicleId);
-      if (vehicleId) {
-        await loadVehicleDataFromDatabase(vehicleId);
-      }
+      await loadVehicleDataFromStorage();
     } catch (error) {
       const isAppError = error instanceof AppError;
       const title = isAppError
@@ -141,11 +139,11 @@ export function Vehicle() {
         fetchVehicle();
     },[vehicle.plate])); */
 
-  useFocusEffect(
+  /*   useFocusEffect(
     useCallback(() => {
       fetchVehicle();
     }, [])
-  );
+  ); */
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -167,13 +165,6 @@ export function Vehicle() {
               />
               <VehicleOwnerDetailsCard vehicleOwnerData={vehicleOwner} />
               <FipeCard vehicleFipeInfo={vehicle} />
-              <Button
-                title="Salvar as informações do carro"
-                titleColor="white"
-                variant="blue"
-                onPress={handleSaveVehicleDataInDatabase}
-                isLoading={isLoading}
-              />
             </VStack>
           ) : (
             <VStack>

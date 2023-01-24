@@ -17,7 +17,7 @@ export function PlateRegister() {
 
   const toast = useToast();
   const { loadVehicleData } = useAuth();
-  
+
   const [vehiclePlate, setVehiclePlate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,7 +36,7 @@ export function PlateRegister() {
     try {
       setIsLoading(true);
       await loadVehicleData(vehiclePlate);
-      navigation.navigate("tabroutes");
+      navigation.navigate("vehiclepreview");
     } catch (error) {
       const isAppError = error instanceof AppError;
       const title = isAppError
@@ -51,7 +51,7 @@ export function PlateRegister() {
     } finally {
       setIsLoading(false);
     }
-   
+
     /*   if (isLoaded) {
             show();
         } else {
@@ -90,8 +90,8 @@ export function PlateRegister() {
           mt={4}
           mb={2}
         >
-          Assim conseguimos mostrar a situação do seu veículo para você
-          dirigir tranquilo.
+          Assim conseguimos mostrar a situação do seu veículo para você dirigir
+          tranquilo.
         </Text>
         <Text fontFamily="heading" fontSize="md" color="gray.700" mb={2}>
           Placa do veículo

@@ -7,6 +7,7 @@ import { TabRoutes } from "./tab.routes";
 import { Profile } from "@screens/accessScreens/Profile";
 import { PlateRegister } from "@screens/accessScreens/PlateRegister";
 import { ChangeVehicle } from "@screens/accessScreens/ChangeVehicle";
+import { VehiclePreview } from "@screens/accessScreens/VehiclePreview";
 //import { FipeTable } from "@screens/accessScreens/FipeTable";
 //import { ShareDataConfirmation } from '@screens/accessScreens/ShareDataConfirmation';
 //import { DriversLicenseInfosRequest } from '@screens/accessScreens/DriversLicenseInfosRequest';
@@ -24,6 +25,7 @@ type AppRoutes = {
   sharedataconfirmation: undefined;
   changevehicle: undefined;
   fipetable: undefined;
+  vehiclepreview: undefined;
   //driverslicenseinfosrequest: undefined;
   //driverslicensestaterequest: undefined;
   //ipvacalculatorresult: undefined;
@@ -46,6 +48,7 @@ export function AppRoutes() {
       <Screen name="profile" component={Profile} />
 
       <Screen name="changevehicle" component={ChangeVehicle} />
+      <Screen name="vehiclepreview" component={VehiclePreview} />
     </Navigator>
   );
 }

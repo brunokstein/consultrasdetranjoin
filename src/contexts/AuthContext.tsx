@@ -3,7 +3,7 @@ import { databaseApi, vehicleDataApi } from "@services/api";
 import { UserDTO } from "@dtos/UserDTO";
 import { VehicleDTO } from "@dtos/VehicleDTO";
 import { VehicleOwnerDTO } from "@dtos/VehicleOwnerDTO";
-import { VehicleSaveInDatabaseDTO } from "@dtos/VehicleDatabaseDTO";
+import { VehicleSaveInDatabaseDTO } from "@dtos/VehicleSaveInDatabaseDTO";
 import { VehicleGetInDatabaseDTO } from "@dtos/VehicleGetInDatabaseDTO";
 import {
   storageUserGet,
@@ -15,6 +15,7 @@ import {
   storageAuthTokenSave,
 } from "@storage/storageAuthToken";
 import axios from "axios";
+import { storageVehicleId, storageVehicleIdGet } from "@storage/storageVehicle";
 
 export type AppContextDataProps = {
   user: UserDTO;
@@ -27,6 +28,7 @@ export type AppContextDataProps = {
   vehicle: VehicleDTO;
   loadVehicleData: (vehiclePlate: string) => Promise<void>;
   loadVehicleDataFromDatabase: (newVehicleId: string) => Promise<void>;
+  loadVehicleDataFromStorage: () => Promise<void>;
   hasVehiclePlate: boolean;
   vehicleId: string;
   vehicleDatabase: VehicleGetInDatabaseDTO;
@@ -46,9 +48,8 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
   const [vehicleOwner, setVehicleOwner] = useState<VehicleOwnerDTO>(
     {} as VehicleOwnerDTO
   );
-  const [vehicleDatabase, setVehicleDatabase] = useState<VehicleGetInDatabaseDTO>(
-    {} as VehicleGetInDatabaseDTO
-  );
+  const [vehicleDatabase, setVehicleDatabase] =
+    useState<VehicleGetInDatabaseDTO>({} as VehicleGetInDatabaseDTO);
   const [user, setUser] = useState<UserDTO>({} as UserDTO);
 
   const [allVehicles, setAllVehicles] = useState([]);
@@ -76,8 +77,6 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
       setVehicleOwner(response.data);
       setVehicle(data);
       setHasVehiclePlate(true);
-      /*  const mergedVehicleData: VehicleDatabaseDTO = {...data, ...response};
-      saveVehicleDataInDatabase(mergedVehicleData); */
     } catch (error) {
       setHasVehiclePlate(false);
       throw error;
@@ -95,6 +94,7 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
         combustivel: vehicle.extra.combustivel.combustivel,
         tipo_veiculo: vehicle.extra.tipo_veiculo.tipo_veiculo,
         renavam: vehicleOwner.Response.renavam,
+        dataEmissaoUltimoCRV: vehicleOwner.Response.dataEmissaoUltimoCRV,
         restricoes: {
           restricao_1: vehicle.extra.restricao_1.restricao,
           restricao_2: vehicle.extra.restricao_2.restricao,
@@ -117,20 +117,37 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
         "/vehicle/create",
         mergedVehicleData
       );
+      await storageVehicleId(data);
       setVehicleId(data);
     } catch (error) {
       throw error;
     }
   }
 
+  async function loadVehicleDataFromStorage() {
+    try {
+      const storageVehicleId = await storageVehicleIdGet();
+      setVehicleId(storageVehicleId);
+      console.log(storageVehicleId);
+      const { data } = await databaseApi.get(
+        `vehicle/info/63d0147bad0f4c74c00a4a96`
+      );
+      console.log(data);
+      setVehicleDatabase(data);
+      setHasVehiclePlate(true);
+    } catch (error) {
+      setHasVehiclePlate(false);
+      throw error;
+    }
+  }
+
   async function loadVehicleDataFromDatabase(newVehicleId: string) {
     try {
-      console.log(newVehicleId)
-      const { data } = await databaseApi.get(`/vehicle/info/${newVehicleId}`);
-      console.log(data);
+      // const { data } = await databaseApi.get(`/vehicle/info/${newVehicleId}`);
       //setVehicleDatabase(data);
+      //console.log(data);
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       //throw error;
     }
   }
@@ -232,12 +249,14 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
 
   useEffect(() => {
     loadUserData();
+    loadVehicleDataFromStorage();
   }, []);
 
   return (
     <AppContext.Provider
       value={{
         user,
+        loadVehicleDataFromStorage,
         updateUserPhone,
         updateUserPassword,
         signIn,

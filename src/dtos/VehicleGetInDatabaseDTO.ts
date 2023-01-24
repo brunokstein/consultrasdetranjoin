@@ -21,6 +21,7 @@ type VehicleDatabaseDTO = {
   enderecoProprietario: string;
   texto_valor: string;
   mes_referencia: string;
+  dataEmissaoUltimoCRV: string;
 };
 
 type RestrictionsDTO = {

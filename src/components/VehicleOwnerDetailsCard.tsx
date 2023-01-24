@@ -1,15 +1,15 @@
+import { VehicleGetInDatabaseDTO } from "@dtos/VehicleGetInDatabaseDTO";
 import { VehicleOwnerDTO } from "@dtos/VehicleOwnerDTO";
-import { VStack, HStack, Text, Center, Divider } from "native-base";
+import { VStack, Text, Center, Divider } from "native-base";
 
 import PersonSVG from "../assets/Personal data-pana.svg";
 
 type Props = {
   vehicleOwnerData: VehicleOwnerDTO;
+  //vehicleFromDatabase?: VehicleGetInDatabaseDTO;
 };
 
-export function VehicleOwnerDetailsCard({
-  vehicleOwnerData,
-}: Props) {
+export function VehicleOwnerDetailsCard({ vehicleOwnerData }: Props) {
   return (
     <VStack bg="white" borderRadius={6} my={2} shadow={4} p={2}>
       <Center>
@@ -17,23 +17,15 @@ export function VehicleOwnerDetailsCard({
       </Center>
       <Divider my={1} />
       <VStack>
-        <VStack
-          borderRadius={6}
-          justifyContent="space-between"
-          p={1}
-        >
+        <VStack borderRadius={6} justifyContent="space-between" p={1}>
           <Text fontSize="md" fontFamily="heading" color="blue.700">
             Nome do proprietário:
           </Text>
-          <Text fontSize="sm" fontFamily="body" color="blue.500" >
+          <Text fontSize="sm" fontFamily="body" color="blue.500">
             {vehicleOwnerData.Response.nomeProprietario}
           </Text>
         </VStack>
-        <VStack
-          borderRadius={6}
-          justifyContent="space-between"
-          p={1}
-        >
+        <VStack borderRadius={6} justifyContent="space-between" p={1}>
           <Text fontSize="md" fontFamily="heading" color="blue.700">
             Situação do Veículo:
           </Text>
@@ -41,11 +33,7 @@ export function VehicleOwnerDetailsCard({
             {vehicleOwnerData.Response.situacaoVeiculo}
           </Text>
         </VStack>
-        <VStack
-          borderRadius={6}
-          justifyContent="space-between"
-          p={1}
-        >
+        <VStack borderRadius={6} justifyContent="space-between" p={1}>
           <Text fontSize="md" fontFamily="heading" color="blue.700">
             Categoria:
           </Text>
@@ -56,11 +44,7 @@ export function VehicleOwnerDetailsCard({
       </VStack>
 
       <VStack>
-        <VStack
-          borderRadius={6}
-          justifyContent="space-between"
-          p={1}
-        >
+        <VStack borderRadius={6} justifyContent="space-between" p={1}>
           <Text fontSize="md" fontFamily="heading" color="blue.700">
             Tipo do Documento:
           </Text>
@@ -68,11 +52,7 @@ export function VehicleOwnerDetailsCard({
             {vehicleOwnerData.Response.proprietario.tipoDocumentoProprietario}
           </Text>
         </VStack>
-        <VStack
-          borderRadius={6}
-          justifyContent="space-between"
-          p={1}
-        >
+        <VStack borderRadius={6} justifyContent="space-between" p={1}>
           <Text fontSize="md" fontFamily="heading" color="blue.700">
             Número do Documento:
           </Text>
@@ -80,11 +60,7 @@ export function VehicleOwnerDetailsCard({
             {vehicleOwnerData.Response.proprietario.numeroDocumentoProprietario}
           </Text>
         </VStack>
-        <VStack
-          borderRadius={6}
-          justifyContent="space-between"
-          p={1}
-        >
+        <VStack borderRadius={6} justifyContent="space-between" p={1}>
           <Text fontSize="md" fontFamily="heading" color="blue.700">
             Endereço:
           </Text>
