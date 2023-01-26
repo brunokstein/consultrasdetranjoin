@@ -92,7 +92,6 @@ export function ChangeVehicle() {
       setIsLoadingNewVehicle(true);
       await loadVehicleDataFromDatabase(selectedVehicleId);
     } catch (error) {
-      console.log(error);
       const isAppError = error instanceof AppError;
       const title = isAppError
         ? error.message
@@ -123,7 +122,6 @@ export function ChangeVehicle() {
   if (isLoading || isLoadingNewVehicle) {
     return <Loading />
   }
-console.log(allVehiclesList);
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <VStack p={6} flex={1}>

@@ -7,9 +7,8 @@ type Props = {
 };
 
 export function FipeCard({ vehicleFipeInfo }: Props) {
-  console.log("FipeCard AQUI!:" + vehicleFipeInfo.data.mes_referencia);
-  /* const newVehicleFipeDate =
-    vehicleFipeInfo.data.mes_referencia.toUpperCase(); */
+  const newVehicleFipeDate =
+    vehicleFipeInfo.data.mes_referencia.toUpperCase();
   return (
     <VStack>
       <HStack
@@ -52,7 +51,7 @@ export function FipeCard({ vehicleFipeInfo }: Props) {
               my={2}
               mr={2}
             >
-              asdhasudh
+              {newVehicleFipeDate}
             </Text>
           </HStack>
         </VStack>
