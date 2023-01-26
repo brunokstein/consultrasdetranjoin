@@ -38,10 +38,23 @@ export function SignIn() {
     try {
       setIsLoading(true);
       await signIn(email, password);
+      if (user.status === 0) {
+        toast.show({
+          title: "Usuário não existente. Realize o seu cadastro!",
+          placement: "top",
+          bgColor: "red.500",
+        });
+      } else {
+        toast.show({
+          title: "Sucesso ao logar!",
+          placement: "top",
+          bgColor: "green.500",
+        });
+      }
     } catch (error) {
       const isAppError = error instanceof AppError;
       const title = isAppError
-        ? error.message
+        ? "Usuario ou senha incorretos!"
         : "Nao foi possivel entrar. Tente novamente mais tarde.";
 
       setIsLoading(false);
@@ -52,13 +65,6 @@ export function SignIn() {
         bgColor: "red.500",
       });
     } finally {
-      if (user.status === 0) {
-        toast.show({
-          title: "Usuário não existente. Realize o seu cadastro!",
-          placement: "top",
-          bgColor: "red.500",
-        });
-      }
       setIsLoading(false);
     }
   }

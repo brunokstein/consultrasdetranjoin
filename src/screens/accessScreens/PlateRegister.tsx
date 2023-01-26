@@ -16,7 +16,7 @@ export function PlateRegister() {
   const navigation = useNavigation<AppNavigatorRoutesProps>();
 
   const toast = useToast();
-  const { loadVehicleData } = useAuth();
+  const { getVehicleData } = useAuth();
 
   const [vehiclePlate, setVehiclePlate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +35,7 @@ export function PlateRegister() {
   async function handleRegisteredVehiclePlate() {
     try {
       setIsLoading(true);
-      await loadVehicleData(vehiclePlate);
+      await getVehicleData(vehiclePlate);
       navigation.navigate("vehiclepreview");
     } catch (error) {
       const isAppError = error instanceof AppError;
@@ -114,7 +114,7 @@ export function PlateRegister() {
       <VStack>
         <Button
           variant="blue"
-          title="Salvar"
+          title="Procurar"
           titleColor="white"
           isLoading={isLoading}
           onPress={handleRegisteredVehiclePlate}

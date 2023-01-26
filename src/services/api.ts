@@ -20,22 +20,6 @@ vehicleDataApi.interceptors.response.use(
     }
   }
 );
-/* 
-const vehicleOwnerApi = axios.create({
-  baseURL:
-    "https://crew-apis-rest.tech/?token=Isdg8j1k07ixehs0fhjjdxje0d8fxjs358f0hu521jxkxfjx&name=PlacaSegSeg",
-});
-
-vehicleOwnerApi.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.data) {
-      return Promise.reject(new AppError(error.response.data.message));
-    } else {
-      return Promise.reject(error);
-    }
-  }
-); */
 
 const databaseApi = axios.create({
   baseURL: "https://api.center.joinads.me/api",

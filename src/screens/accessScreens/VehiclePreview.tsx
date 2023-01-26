@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScrollView, VStack, Text, useToast } from "native-base";
+import { ScrollView, VStack, useToast } from "native-base";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
@@ -7,10 +7,8 @@ import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { useAuth } from "@hooks/useAuth";
 import { AppError } from "@utils/AppError";
 
-import { FipeCard } from "@components/FipeCard";
-import { VehicleDetailsCard } from "@components/VehicleDetailsCard";
-import { VehicleOwnerDetailsCard } from "@components/VehicleOwnerDetailsCard";
 import { Button } from "@components/Button";
+import { VehiclePreviewCard } from "@components/VehiclePreviewCard";
 
 export function VehiclePreview() {
   const [isLoading, setIsLoading] = useState(false);
@@ -45,16 +43,13 @@ export function VehiclePreview() {
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <VStack>
-          <Text>Informações do veículo</Text>
-          <VehicleDetailsCard
+        <VStack p={6}>
+          <VehiclePreviewCard
             vehicleData={vehicle}
             vehicleOwnerData={vehicleOwner}
           />
-          <VehicleOwnerDetailsCard vehicleOwnerData={vehicleOwner} />
-          <FipeCard vehicleFipeInfo={vehicle} />
           <Button
-            title="Salvar as informações do carro"
+            title="Salvar"
             titleColor="white"
             variant="blue"
             onPress={handleSaveVehicleDataInDatabase}

@@ -19,6 +19,7 @@
     "@react-navigation/native-stack": "^6.9.7",
     "axios": "^1.2.1",
     "date-fns": "^2.29.3",
+    "eas-cli": "^3.4.1",
     "expo": "~47.0.9",
     "expo-dev-client": "~2.0.1",
     "expo-font": "~11.0.1",

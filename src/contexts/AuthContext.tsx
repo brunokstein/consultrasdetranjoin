@@ -3,8 +3,9 @@ import { databaseApi, vehicleDataApi } from "@services/api";
 import { UserDTO } from "@dtos/UserDTO";
 import { VehicleDTO } from "@dtos/VehicleDTO";
 import { VehicleOwnerDTO } from "@dtos/VehicleOwnerDTO";
-import { VehicleSaveInDatabaseDTO } from "@dtos/VehicleSaveInDatabaseDTO";
 import { VehicleGetInDatabaseDTO } from "@dtos/VehicleGetInDatabaseDTO";
+import { VehicleSaveInDatabaseDTO } from "@dtos/VehicleSaveInDatabaseDTO";
+import axios from "axios";
 import {
   storageUserGet,
   storageUserSave,
@@ -14,8 +15,7 @@ import {
   storageAuthTokenGet,
   storageAuthTokenSave,
 } from "@storage/storageAuthToken";
-import axios from "axios";
-import { storageVehicleId, storageVehicleIdGet } from "@storage/storageVehicle";
+import { storageVehicleId, storageVehicleIdGet, storageVehicleIdRemove } from "@storage/storageVehicle";
 
 export type AppContextDataProps = {
   user: UserDTO;
@@ -26,13 +26,13 @@ export type AppContextDataProps = {
   isLoadingUserStorageData: boolean;
   vehicleOwner: VehicleOwnerDTO;
   vehicle: VehicleDTO;
-  loadVehicleData: (vehiclePlate: string) => Promise<void>;
-  loadVehicleDataFromDatabase: (newVehicleId: string) => Promise<void>;
-  loadVehicleDataFromStorage: () => Promise<void>;
-  hasVehiclePlate: boolean;
-  vehicleId: string;
   vehicleDatabase: VehicleGetInDatabaseDTO;
+  getVehicleData: (vehiclePlate: string) => Promise<void>;
+  vehicleId: string;
   saveVehicleDataInDatabase: () => Promise<void>;
+  deleteVehicle: (id: string) => Promise<void>;
+  loadVehicleDataFromDatabase: (newVehicleId: string) => Promise<void>;
+  isLoadingVehicleData: boolean;
 };
 
 type AppContextProviderProps = {
@@ -48,21 +48,19 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
   const [vehicleOwner, setVehicleOwner] = useState<VehicleOwnerDTO>(
     {} as VehicleOwnerDTO
   );
+  const [vehicleId, setVehicleId] = useState("");
+  const [isLoadingVehicleData, setIsLoadingVehicleData] = useState(false);
   const [vehicleDatabase, setVehicleDatabase] =
     useState<VehicleGetInDatabaseDTO>({} as VehicleGetInDatabaseDTO);
+  const [hasVehicle, setHasVehicle] = useState(false);
+
   const [user, setUser] = useState<UserDTO>({} as UserDTO);
-
-  const [allVehicles, setAllVehicles] = useState([]);
-
-  const [vehicleId, setVehicleId] = useState("");
-  const [hasVehiclePlate, setHasVehiclePlate] = useState(false);
-  //const [userId, setUserId] = useState("");
   const [userStatus, setUserStatus] = useState<number>();
 
   const [isLoadingUserStorageData, setIsLoadingUserStorageData] =
     useState(true);
 
-  async function loadVehicleData(vehiclePlate: string) {
+  async function getVehicleData(vehiclePlate: string) {
     try {
       const { data } = await vehicleDataApi.post("/api", {
         placa: vehiclePlate,
@@ -76,9 +74,7 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
       });
       setVehicleOwner(response.data);
       setVehicle(data);
-      setHasVehiclePlate(true);
     } catch (error) {
-      setHasVehiclePlate(false);
       throw error;
     }
   }
@@ -86,6 +82,7 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
   async function saveVehicleDataInDatabase() {
     try {
       const mergedVehicleData: VehicleSaveInDatabaseDTO = {
+        user_id: user._id,
         placa: vehicle.placa,
         modelo: vehicle.extra.marca_modelo.modelo,
         ano: vehicle.ano,
@@ -119,55 +116,51 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
       );
       await storageVehicleId(data);
       setVehicleId(data);
+      loadVehicleData();
     } catch (error) {
       throw error;
     }
   }
 
-  async function loadVehicleDataFromStorage() {
+  async function loadVehicleData() {
     try {
-      const storageVehicleId = await storageVehicleIdGet();
-      setVehicleId(storageVehicleId);
-      console.log(storageVehicleId);
-      const { data } = await databaseApi.get(
-        `vehicle/info/63d0147bad0f4c74c00a4a96`
-      );
-      console.log(data);
-      setVehicleDatabase(data);
-      setHasVehiclePlate(true);
+      setIsLoadingVehicleData(true);
+      const hasVehicleId = await storageVehicleIdGet();
+      if (hasVehicleId.token) {
+        setVehicleId(hasVehicleId)
+        const { data } = await databaseApi.get(`/vehicle/info/${hasVehicleId.token}`);
+        setVehicleDatabase(data);
+      }
     } catch (error) {
-      setHasVehiclePlate(false);
+      throw error;
+    } finally {
+      setIsLoadingVehicleData(false);
+    }
+  }
+
+  async function deleteVehicle(id: string) {
+    try {
+      await databaseApi.get(`/vehicle/delete/${id}`);
+      if (vehicleDatabase.data._id === id) {
+        await storageVehicleIdRemove();
+        setVehicleDatabase({} as VehicleGetInDatabaseDTO);
+        setVehicleId("");
+      }
+    } catch (error) {
       throw error;
     }
   }
 
   async function loadVehicleDataFromDatabase(newVehicleId: string) {
     try {
-      // const { data } = await databaseApi.get(`/vehicle/info/${newVehicleId}`);
-      //setVehicleDatabase(data);
-      //console.log(data);
-    } catch (error) {
-      //console.log(error);
-      //throw error;
-    }
-  }
-
-  async function loadAllVehiclesFromDatabase(userID: string) {
-    try {
-      const { data } = await databaseApi.get(`/vehicle/list/${userID}`);
-      setAllVehicles(data);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function deleteVehicleFromDatabase(oldVehicleId: string) {
-    try {
-      await databaseApi.get(`/vehicle/delete/${oldVehicleId}`);
+      const { data } = await databaseApi.get(`/vehicle/info/${newVehicleId}`);
+      await storageVehicleId(newVehicleId);
+      setVehicleDatabase(data);
+      setVehicleId(newVehicleId);
     } catch (error) {
       throw error;
     }
-  }
+  } 
 
   async function userAndTokenUpdate(userData: UserDTO, token: string) {
     databaseApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -240,7 +233,6 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
         userAndTokenUpdate(userLogged, token);
       }
     } catch (error) {
-      console.log(error);
       throw error;
     } finally {
       setIsLoadingUserStorageData(false);
@@ -249,27 +241,27 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
 
   useEffect(() => {
     loadUserData();
-    loadVehicleDataFromStorage();
+    loadVehicleData();
   }, []);
-
+ 
   return (
     <AppContext.Provider
       value={{
         user,
-        loadVehicleDataFromStorage,
-        updateUserPhone,
-        updateUserPassword,
-        signIn,
+        vehicleDatabase,
         isLoadingUserStorageData,
         vehicleOwner,
         vehicle,
         vehicleId,
-        loadVehicleData,
-        hasVehiclePlate,
+        isLoadingVehicleData,
+        updateUserPhone,
+        updateUserPassword,
+        signIn,
+        getVehicleData,
         signOut,
-        loadVehicleDataFromDatabase,
         saveVehicleDataInDatabase,
-        vehicleDatabase,
+        deleteVehicle,
+        loadVehicleDataFromDatabase,
       }}
     >
       {children}

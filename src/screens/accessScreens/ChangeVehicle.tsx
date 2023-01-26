@@ -1,82 +1,55 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
-import { VStack, Text, HStack, ScrollView, useToast } from "native-base";
+import {  useNavigation } from "@react-navigation/native";
+import { VStack, Text, useToast, FlatList } from "native-base";
 
-import { databaseApi } from "@services/api";
 import { AppError } from "@utils/AppError";
+import { databaseApi } from "@services/api";
+import { VehiclesListDTO } from "@dtos/VehiclesListDTO";
 
 import { useAuth } from "@hooks/useAuth";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 //import { BannerAd, BannerAdSize, TestIds, useInterstitialAd } from 'react-native-google-mobile-ads';
 
-import { Input } from "@components/Input";
 import { Button } from "@components/Button";
+import { Loading } from "@components/Loading";
 import { BackIconButton } from "@components/BackIconButton";
-import { VehicleDTO } from "@dtos/VehicleDTO";
+import { VehicleListCard } from "@components/VehicleListCard";
 
 export function ChangeVehicle() {
   const navigation = useNavigation<AppNavigatorRoutesProps>();
-  const { vehicle, loadVehicleOwnerData, loadVehicleData, loadVehicleDataFromDatabase, user } = useAuth();
+  const { vehicleDatabase, user, deleteVehicle, vehicleId, loadVehicleDataFromDatabase } = useAuth();
 
   const toast = useToast();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingNewVehicle, setIsLoadingNewVehicle] = useState(false);
-
-  const [vehiclePlate, setVehiclePlate] = useState("");
-
+  const [allVehiclesList, setAllVehiclesList] = useState<VehiclesListDTO[]>([]);
   /*  const adUnitIdBanner = __DEV__ ? TestIds.BANNER : "ca-app-pub-3940256099942544/6300978111";
 
-    const adUnitIdInterstitial = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-3940256099942544/1033173712";
-    const { isLoaded, isClosed, load, show } = useInterstitialAd(adUnitIdInterstitial, {
-        requestNonPersonalizedAdsOnly: true,
-    }); */
+  const adUnitIdInterstitial = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-3940256099942544/1033173712";
+  const { isLoaded, isClosed, load, show } = useInterstitialAd(adUnitIdInterstitial, {
+      requestNonPersonalizedAdsOnly: true,
+  }); */
 
   function handleGoBack() {
     navigation.goBack();
   }
 
-  async function loadVehicleInfoFromDatabase(vehicleId: string) {
-    try {
-      setIsLoadingNewVehicle(true);
-      await loadVehicleDataFromDatabase(vehicleId);
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoadingNewVehicle(false);
-    }
+  function handleNewVehiclePlateRegister() {
+    navigation.navigate("plateregister");
   }
 
-  async function deleteVehicleInfoFromDatabase(oldVehicleId: string) {
-    try {
-
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  
-  async function handleSaveNewVehiclePlate(newVehiclePlate: string) {
+  async function loadVehiclesFromDatabase() {
     try {
       setIsLoading(true);
-      if (vehicle.placa === newVehiclePlate) {
-        toast.show({
-          title: "Placa já cadastrada",
-          placement: "top",
-          bgColor: "red.500",
-        });
-        return;
-      }
-      await loadVehicleData(newVehiclePlate);
-      await loadVehicleOwnerData(newVehiclePlate);
-      navigation.navigate("tabroutes");
+      const { data } = await databaseApi.get(`/vehicle/list/${user._id}`)
+      setAllVehiclesList(data.data);
     } catch (error) {
       const isAppError = error instanceof AppError;
       const title = isAppError
         ? error.message
-        : "Nao foi possivel entrar. Tente novamente mais tarde.";
-
-      setIsLoading(false);
+        : "Não foi possível carregar os veiculos. Tente novamente mais tarde.";
 
       toast.show({
         title,
@@ -88,6 +61,52 @@ export function ChangeVehicle() {
     }
   }
 
+  async function deleteVehicleInfoFromDatabase(oldVehicleId: string) {
+    try {
+      setIsLoading(true);
+      await deleteVehicle(oldVehicleId);
+      toast.show({
+        title: "Veiculo removido com sucesso!",
+        placement: "top",
+        bgColor: "green.500"
+      })
+      await loadVehiclesFromDatabase();
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível deletar o veiculo. Tente novamente mais tarde.";
+
+      toast.show({
+        title,
+        placement: "bottom",
+        bgColor: "red.500",
+      });
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function loadSelectedVehicle(selectedVehicleId: string) {
+    try {
+      setIsLoadingNewVehicle(true);
+      await loadVehicleDataFromDatabase(selectedVehicleId);
+    } catch (error) {
+      console.log(error);
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível selecionar o veiculo. Tente novamente mais tarde.";
+
+      toast.show({
+        title,
+        placement: "bottom",
+        bgColor: "red.500",
+      }); 
+    } finally {
+      setIsLoadingNewVehicle(false);
+    }
+  }
   /* useEffect(() => {
         load();
     }, [load]);
@@ -97,76 +116,77 @@ export function ChangeVehicle() {
             navigation.navigate("tabroutes");
         }
     }, [isClosed, navigation]); */
+  useEffect(() => {
+    loadVehiclesFromDatabase();
+  }, []);
 
+  if (isLoading || isLoadingNewVehicle) {
+    return <Loading />
+  }
+console.log(allVehiclesList);
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        showsVerticalScrollIndicator={false}
-      >
-        <VStack p={6} flex={1}>
-          <BackIconButton onPress={handleGoBack} />
-          <VStack mt={4}>
-            <Text fontFamily="heading" fontSize="xl" color="gray.700" mb={2}>
-              Trocar veículo
-            </Text>
-            <Text fontFamily="body" fontSize="sm" color="gray.400">
-              Todas as informações dos seus outros veículos ficarão guardadas
-              para você consultar novamente.
-            </Text>
-
-            <HStack justifyContent="space-between" my={2}>
-              <Text fontFamily="body" fontSize="md" color="gray.500">
-                Placa do veículo
+      <VStack p={6} flex={1}>
+        <BackIconButton onPress={handleGoBack} />
+        <VStack mt={4} flex={1}>
+          {
+            (vehicleId.token || vehicleId) && vehicleDatabase.data ?
+              <VStack>
+                <Text fontFamily="heading" fontSize="xl" color="gray.700" mb={2}>
+                  Trocar veículo
+                </Text>
+                <Text fontFamily="body" fontSize="sm" color="gray.400">
+                  Todas as informações dos seus outros veículos ficarão guardadas
+                  para você consultar novamente.
+                </Text>
+                <Text fontFamily="heading" fontSize="md" color="blue.700" mt={2}>
+                  Veículo atual: {vehicleDatabase.data.placa}
+                </Text>
+                <FlatList
+                  data={allVehiclesList}
+                  keyExtractor={item => item._id}
+                  renderItem={({ item }) => (
+                    <VehicleListCard
+                      vehicleList={item}
+                      deleteVehicle={() => deleteVehicleInfoFromDatabase(item._id)}
+                      loadSelectedVehicle={() => loadSelectedVehicle(item._id)}
+                    />
+                  )}
+                  showsVerticalScrollIndicator={false}
+                  my={4}
+                />
+              </VStack>
+              :
+              <Text>
+                Nao ha nenhum veiculo cadastrado ainda, {'\n'}Vamos cadastrar?
               </Text>
-              <Text fontFamily="heading" fontSize="md" color="blue.700">
-                Veículo atual: {vehicle.placa}
-              </Text>
-            </HStack>
-            <Input
-              returnKeyType="send"
-              placeholder="XXXXXXX"
-              autoCapitalize="characters"
-              onChangeText={(text) => setVehiclePlate(text)}
-              onSubmitEditing={() => handleSaveNewVehiclePlate}
-            />
-          </VStack>
-
-          <VStack
-            bg="white"
-            borderRadius={6}
-            borderWidth={1}
-            borderColor="gray.700"
-            px={4}
-            py={2}
-            mb={12}
-            flex={1}
-          >
-            <Text fontFamily="heading" fontSize="xl" color="gray.700" mb={2}>
-              Consultas recentes
-            </Text>
-            <Text fontFamily="body" fontSize="sm" color="gray.400">
-              Acesse rapidamente seus veículos clicando na placa.
-            </Text>
-          </VStack>
-
-          <Button
-            title="Salvar"
-            variant="blue"
-            titleColor="white"
-            isLoading={isLoading}
-            onPress={() => handleSaveNewVehiclePlate(vehiclePlate)}
-          />
+          }
         </VStack>
-      </ScrollView>
+        <Button
+          title="Registrar nova placa"
+          titleColor="white"
+          variant="blue"
+          onPress={handleNewVehiclePlateRegister}
+        />
+      </VStack>
     </SafeAreaView>
   );
 }
 
-/*   <BannerAd
-                        unitId={adUnitIdBanner}
-                        size={BannerAdSize.MEDIUM_RECTANGLE}
-                        requestOptions={{
-                            requestNonPersonalizedAdsOnly: true,
-                        }}
-                    /> */
+/* <VStack
+bg="white"
+borderRadius={6}
+borderWidth={1}
+borderColor="gray.700"
+px={4}
+py={2}
+mb={12}
+flex={1}
+>
+<Text fontFamily="heading" fontSize="xl" color="gray.700" mb={2}>
+  Consultas recentes
+</Text>
+<Text fontFamily="body" fontSize="sm" color="gray.400">
+  Acesse rapidamente seus veículos clicando na placa.
+</Text>
+</VStack> */

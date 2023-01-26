@@ -1,17 +1,15 @@
 import { VStack, Text, Icon, HStack, View, Divider } from "native-base";
-import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-
-import { VehicleDTO } from "@dtos/VehicleDTO";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { VehicleGetInDatabaseDTO } from "@dtos/VehicleGetInDatabaseDTO";
 
 type Props = {
-  vehicleFipeInfo: VehicleDTO;
-  //vehicleFipeInfoFromDatabase: VehicleGetInDatabaseDTO;
+  vehicleFipeInfo: VehicleGetInDatabaseDTO;
 };
 
 export function FipeCard({ vehicleFipeInfo }: Props) {
-  const newVehicleFipeDate =
-    vehicleFipeInfo.fipe.dados[0].mes_referencia.toUpperCase();
+  console.log("FipeCard AQUI!:" + vehicleFipeInfo.data.mes_referencia);
+  /* const newVehicleFipeDate =
+    vehicleFipeInfo.data.mes_referencia.toUpperCase(); */
   return (
     <VStack>
       <HStack
@@ -42,11 +40,10 @@ export function FipeCard({ vehicleFipeInfo }: Props) {
               Valor do veículo pela Fipe
             </Text>
           </HStack>
-
           <Divider />
           <HStack justifyContent="space-between" alignItems="center">
             <Text fontFamily="heading" fontSize="md" color="blue.700" ml={2}>
-              {vehicleFipeInfo.fipe.dados[0].texto_valor}
+              {vehicleFipeInfo.data.texto_valor}
             </Text>
             <Text
               fontFamily="body"
@@ -55,7 +52,7 @@ export function FipeCard({ vehicleFipeInfo }: Props) {
               my={2}
               mr={2}
             >
-              {newVehicleFipeDate}
+              asdhasudh
             </Text>
           </HStack>
         </VStack>

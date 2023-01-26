@@ -23,8 +23,7 @@ export function Home() {
     }); */
 
   const [userName, setUserName] = useState("");
-  const { hasVehiclePlate, user, vehicleId } = useAuth();
-
+  const { user, vehicleId, vehicleDatabase } = useAuth();
   const appNavigation = useNavigation<AppNavigatorRoutesProps>();
   const tabNavigation = useNavigation<TabNavigatorRoutesProps>();
 
@@ -40,10 +39,9 @@ export function Home() {
     appNavigation.navigate("plateregister");
   }
 
-  function handleChangeVehicle() {
+  function handleGoVehiclesList() {
     appNavigation.navigate("changevehicle");
   }
-
   /* async function loadVehicleData() { 
     try {
       
@@ -72,9 +70,9 @@ export function Home() {
       
     }))
  */
-/* useEffect(() => {
-
-}); */
+  /* useEffect(() => {
+  
+  }); */
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
@@ -83,7 +81,6 @@ export function Home() {
       >
         <VStack flex={1} p={6}>
           <HomeHeader goToProfile={handleGoToProfileScreen} />
-
           <VStack py={2}>
             <Text
               fontFamily="heading"
@@ -106,7 +103,7 @@ export function Home() {
             </Text>
           </VStack>
 
-          {hasVehiclePlate ? (
+          {(vehicleId.token || vehicleId) && vehicleDatabase.data ? (
             <VStack
               alignItems="center"
               bg="white"
@@ -160,6 +157,17 @@ export function Home() {
                   Adicionar veículo
                 </Text>
               </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleGoVehiclesList}>
+                <Text
+                  fontFamily="heading"
+                  fontSize="md"
+                  color="blue.500"
+                  my={2}
+                >
+                  Ver veiculos cadastrados!
+                </Text>
+              </TouchableOpacity>
             </VStack>
           )}
         </VStack>
@@ -167,56 +175,3 @@ export function Home() {
     </SafeAreaView>
   );
 }
-
-/* {
-    hasCNH ?
-        <HomeDriversLicenseStatus variant="ok" />
-
-        :
-
-        <TouchableOpacity onPress={handleRegisterDriversLicense}>
-            <HStack
-                px={2}
-                py={4}
-                mt={4}
-                bg="white"
-                borderRadius={6}
-                borderWidth={1}
-                borderColor="gray.400"
-                alignItems="center"
-            >
-                <HStack
-                    flex={1}
-                    alignItems="center"
-                >
-                    <View
-                        p={2}
-                        borderRadius="9999"
-                        bg="green.400"
-                        mr={2}
-                    >
-                        <Icon
-                            as={MaterialCommunityIcons}
-                            name="card-account-details-outline"
-                            size={4}
-                            color="gray.700"
-                        />
-                    </View>
-                    <Text
-                        color="gray.700"
-                        fontSize="md"
-                        fontFamily="heading"
-                        letterSpacing="xs"
-                    >
-                        Adicione a sua CNH
-                    </Text>
-                </HStack>
-
-                <Icon
-                    as={MaterialCommunityIcons}
-                    name="chevron-right"
-                    size={6}
-                />
-            </HStack>
-        </TouchableOpacity>
-} */

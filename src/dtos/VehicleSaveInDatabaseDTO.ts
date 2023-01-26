@@ -1,22 +1,23 @@
 export type VehicleSaveInDatabaseDTO = {
+    user_id: string;
     placa: string;
-    modelo: string;
     ano: string;
     anoModelo: string;
-    cor: string;
+    modelo: string;
     combustivel: string;
     tipo_veiculo: string;
     renavam: string;
-    restricoes: RestrictionsDTO;
+    dataEmissaoUltimoCRV: string;
     nomeProprietario: string;
     situacaoVeiculo: string;
-    categoria: string;
     tipoDocumentoProprietario: string;
     numeroDocumentoProprietario: string;
     enderecoProprietario: string;
+    categoria: string;
     texto_valor: string;
     mes_referencia: string;
-    dataEmissaoUltimoCRV: string;
+    restricoes: RestrictionsDTO;
+    cor: string;
 }
 
 type RestrictionsDTO = {

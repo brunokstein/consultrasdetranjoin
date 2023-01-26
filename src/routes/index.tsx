@@ -16,7 +16,7 @@ import {
 
 export function Routes() {
   const { colors } = useTheme();
-  const { isLoadingUserStorageData, user } = useAuth();
+  const { isLoadingUserStorageData, user, isLoadingVehicleData } = useAuth();
 
   const adUnitId = __DEV__
     ? TestIds.BANNER
@@ -25,7 +25,7 @@ export function Routes() {
   const theme = DefaultTheme;
   theme.colors.background = colors.white;
   
-  if (isLoadingUserStorageData) {
+  if (isLoadingUserStorageData && isLoadingVehicleData) {
     return <Loading />;
   }
   return (

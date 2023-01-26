@@ -43,7 +43,7 @@ export function AppRoutes() {
   return (
     <Navigator screenOptions={{ headerShown: false }} initialRouteName="tabroutes">
       <Screen name="tabroutes" component={TabRoutes} />
-      
+
       <Screen name="plateregister" component={PlateRegister} />
       <Screen name="profile" component={Profile} />
 
