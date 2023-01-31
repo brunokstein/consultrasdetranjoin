@@ -1,14 +1,15 @@
-/* import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '@hooks/useAuth';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { VStack, Text, ScrollView } from 'native-base';
+import { VStack, Text, ScrollView, useToast } from 'native-base';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import * as yup from 'yup';
 
 import { AppNavigatorRoutesProps } from '@routes/app.routes';
-
+import { AppError } from '@utils/AppError';
 //import { BannerAd, BannerAdSize, TestIds, useInterstitialAd } from 'react-native-google-mobile-ads';
 
 import { Input } from '@components/Input';
@@ -16,27 +17,28 @@ import { Button } from '@components/Button';
 import { BackIconButton } from '@components/BackIconButton';
 
 type FormDataProps = {
-    cpf: string;
     driversLicenseNumber: string;
-    driversLicenseDate: string;
 }
 
 const RegisterSchema = yup.object({
-    cpf: yup.string().required('Informe o CPF.').length(11, 'CPF Inválido'),
     driversLicenseNumber: yup.string().required('Informe o número da CNH.').length(11, 'CNH Inválida'),
-    driversLicenseDate: yup.date().typeError('Formato inválido. DDMMYYYY').required('Informe a data de validade da CNH'),
 });
 
-export function DriversLicenseInfosRequest() {
+export function DriversLicenseNumberRegister() {
 
     const navigation = useNavigation<AppNavigatorRoutesProps>();
 
-    /* const adUnitIdBanner = __DEV__ ? TestIds.BANNER : "ca-app-pub-3940256099942544/6300978111";
+    const [isLoading, setIsLoading] = useState(false);
+    const { getCnhData } = useAuth();
 
-    const adUnitIdInterstitial = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-3940256099942544/1033173712";
+    const toast = useToast();
+
+    //const adUnitIdBanner = __DEV__ ? TestIds.BANNER : "ca-app-pub-3940256099942544/6300978111";
+
+    /* const adUnitIdInterstitial = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-3940256099942544/1033173712";
     const { isLoaded, isClosed, load, show } = useInterstitialAd(adUnitIdInterstitial, {
         requestNonPersonalizedAdsOnly: true,
-    }); 
+    });  */
 
     const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
         resolver: yupResolver(RegisterSchema)
@@ -46,24 +48,41 @@ export function DriversLicenseInfosRequest() {
         navigation.goBack();
     }
 
-    function handleRegisterDriversLicenseState() {
-        navigation.navigate("driverslicensestaterequest");
-       /*  if (isLoaded) {
-            show();
-        } else {
-            
-        } 
-    }
+    async function handleRegisterDriversLicenseNumber({ driversLicenseNumber }: FormDataProps) {
+        try {
+            setIsLoading(true);
+            await getCnhData(driversLicenseNumber);
+            navigation.navigate('tabroutes');
+        } catch (error) {
+            const isAppError = error instanceof AppError;
+            const title = isAppError
+                ? error.message
+                : "Não foi possível verificar a CNH. Tente novamente mais tarde.";
 
-     useEffect(() => {
-        load();
-    }, [load]);
-
-    useEffect(() => {
-        if (isClosed) {
-            navigation.navigate("driverslicensestaterequest");
+            toast.show({
+                title,
+                placement: "top",
+                bgColor: "red.500",
+            });
+        } finally {
+            setIsLoading(false);
         }
-    }, [isClosed, navigation]);
+        /* if (isLoaded) {
+             show();
+         } else {
+             
+         }  */
+    }
+    /* 
+         useEffect(() => {
+            load();
+        }, [load]);
+    
+        useEffect(() => {
+            if (isClosed) {
+                navigation.navigate("driverslicensestaterequest");
+            }
+        }, [isClosed, navigation]); */
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -79,7 +98,7 @@ export function DriversLicenseInfosRequest() {
                         lineHeight="sm"
                         mt={4}
                     >
-                        Precisamos de algumas {"\n"}informações da sua CNH!
+                        Precisamos do {"\n"}número da sua CNH.
                     </Text>
                     <Text
                         fontFamily="body"
@@ -88,24 +107,10 @@ export function DriversLicenseInfosRequest() {
                         mt={2}
                         mb={4}
                     >
-                        Assim conseguimos te mostrar a pontuação da sua CNH para você consultar quando quiser
+                        Assim conseguimos te mostrar as informações da CNH para consultar quando quiser.
                     </Text>
-                
-                    <VStack flex={1}>
-                        <Controller
-                            control={control}
-                            name="cpf"
-                            render={({ field: { onChange, value } }) => (
-                                <Input
-                                    placeholder="Número de CPF"
-                                    keyboardType="number-pad"
-                                    onChangeText={onChange}
-                                    value={value}
-                                    errorMessage={errors.cpf?.message}
-                                />
-                            )}
-                        />
 
+                    <VStack flex={1}>
                         <Controller
                             control={control}
                             name="driversLicenseNumber"
@@ -119,38 +124,25 @@ export function DriversLicenseInfosRequest() {
                                 />
                             )}
                         />
-
-                        <Controller
-                            control={control}
-                            name="driversLicenseDate"
-                            render={({ field: { onChange, value } }) => (
-                                <Input
-                                    placeholder="Data de validade da CNH"
-                                    onChangeText={onChange}
-                                    value={value}
-                                    returnKeyType="send"
-                                    errorMessage={errors.driversLicenseDate?.message}
-                                />
-                            )}
-                        />
                     </VStack>
 
-               {/*      <BannerAd
+                    {/* <BannerAd
                         unitId={adUnitIdBanner}
                         size={BannerAdSize.MEDIUM_RECTANGLE}
                         requestOptions={{
                             requestNonPersonalizedAdsOnly: true,
                         }}
-                    /> 
+                    />  */}
 
                     <Button
                         variant="gray"
-                        title="Próximo"
+                        title="Cadastrar"
                         titleColor="white"
-                        onPress={handleRegisterDriversLicenseState}
+                        isLoading={isLoading}
+                        onPress={handleSubmit(handleRegisterDriversLicenseNumber)}
                     />
                 </VStack>
             </ScrollView>
         </SafeAreaView>
     );
-} */
+} 

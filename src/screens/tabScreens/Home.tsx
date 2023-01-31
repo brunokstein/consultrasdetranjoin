@@ -7,6 +7,7 @@ import { VStack, Text, HStack, Image, Icon } from "native-base";
 import { useAuth } from "@hooks/useAuth";
 
 import VehicleSVG from "../../assets/Car driving-cuate.svg";
+import PersonSVG from "../../assets/Personal data-pana.svg";
 
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { TabNavigatorRoutesProps } from "@routes/tab.routes";
@@ -15,6 +16,7 @@ import { TabNavigatorRoutesProps } from "@routes/tab.routes";
 
 import { Button } from "@components/Button";
 import { HomeHeader } from "@components/HomeHeader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export function Home() {
   /*   const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-3940256099942544/1033173712";
@@ -23,7 +25,7 @@ export function Home() {
     }); */
 
   const [userName, setUserName] = useState("");
-  const { user, vehicleId, vehicleDatabase } = useAuth();
+  const { user, vehicleId, vehicleDatabase, hasDriversLicense } = useAuth();
   const appNavigation = useNavigation<AppNavigatorRoutesProps>();
   const tabNavigation = useNavigation<TabNavigatorRoutesProps>();
 
@@ -42,6 +44,15 @@ export function Home() {
   function handleGoVehiclesList() {
     appNavigation.navigate("changevehicle");
   }
+  
+  function handleRegisterDriversLicenseNumber() {
+    appNavigation.navigate("driverslicensenumberregister");
+  }
+
+  function handleGoToDriversLicenseScreen() {
+    tabNavigation.navigate("driverslicense");
+  }
+
   /* async function loadVehicleData() { 
     try {
       
@@ -71,7 +82,7 @@ export function Home() {
     }))
  */
   /* useEffect(() => {
-  
+    
   }); */
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -170,6 +181,63 @@ export function Home() {
               </TouchableOpacity>
             </VStack>
           )}
+          {
+            hasDriversLicense ?
+              <VStack
+                alignItems="center"
+                bg="white"
+                shadow={4}
+                my={4}
+                p={4}
+                borderRadius={6}
+              >
+                <PersonSVG height={120} width={180} />
+                <Text fontFamily="heading" fontSize="lg" color="gray.700">
+                  CNH cadastrada!
+                </Text>
+                <Button
+                  title="Veja os detalhes!"
+                  variant="blue"
+                  titleColor="white"
+                  mt={2}
+                  onPress={handleGoToDriversLicenseScreen}
+                />
+              </VStack>
+              :
+              <VStack
+                alignItems="center"
+                bg="white"
+                shadow={4}
+                my={4}
+                p={4}
+                borderRadius={6}
+              >
+                <PersonSVG height={120} width={180} />
+                <Text fontFamily="heading" fontSize="md" color="gray.700">
+                  Cadastre sua CNH
+                </Text>
+                <Text
+                  fontFamily="body"
+                  fontSize="sm"
+                  color="gray.400"
+                  p={2}
+                  textAlign="center"
+                  lineHeight="xs"
+                >
+                  Para visualizar as informações, adicione a sua CNH!
+                </Text>
+                <TouchableOpacity onPress={handleRegisterDriversLicenseNumber}>
+                  <Text
+                    fontFamily="heading"
+                    fontSize="md"
+                    color="blue.500"
+                    my={2}
+                  >
+                    Adicionar CNH
+                  </Text>
+                </TouchableOpacity>
+              </VStack>
+          }
         </VStack>
       </ScrollView>
     </SafeAreaView>

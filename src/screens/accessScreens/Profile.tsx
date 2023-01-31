@@ -12,6 +12,7 @@ import {
   Box,
   Center,
   Icon,
+  useSafeArea,
 } from "native-base";
 import { useAuth } from "@hooks/useAuth";
 
@@ -60,11 +61,12 @@ export function Profile() {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordUpdateIsLoading, setPasswordUpdateIsLoading] = useState(false);
   const [phoneUpdateIsLoading, setPhoneUpdateIsLoading] = useState(false);
+  const [isLogginOut, setIsLogginOut] = useState(false);
 
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [userPhone, setUserPhone] = useState("");
-  const { user, updateUserPhone, signOut, updateUserPassword } = useAuth();
+  const { user, updateUserPhone, signOut, updateUserPassword, userLogout } = useAuth();
 
   //const adUnitIdBanner = __DEV__ ? TestIds.BANNER : "ca-app-pub-3940256099942544/6300978111";
 
@@ -201,6 +203,25 @@ export function Profile() {
     }
   }
 
+  async function handleLogout() {
+    try {
+      setIsLogginOut(true);
+      await userLogout();
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Nao foi possivel atualizar a senha. Tente novamente mais tarde.";
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    } finally {
+      setIsLogginOut(false);
+    }
+  }
+
   useFocusEffect(
     useCallback(() => {
       loadUserInfo();
@@ -324,6 +345,16 @@ export function Profile() {
             onPress={() => setAlertIsOpen(true)}
             isLoading={isLoading}
           />
+          {
+            isLogginOut ? <Loading /> :
+            <Center mt={2}>
+            <TouchableOpacity onPress={handleLogout}>
+              <Text fontSize="sm" fontFamily="body" color="red.500">
+                Logout
+              </Text>
+            </TouchableOpacity>
+          </Center>
+          }
         </VStack>
 
         <AlertDialog leastDestructiveRef={cancelRef} isOpen={alerIsOpen}>

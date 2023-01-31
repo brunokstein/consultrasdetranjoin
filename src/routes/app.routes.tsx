@@ -8,10 +8,9 @@ import { Profile } from "@screens/accessScreens/Profile";
 import { PlateRegister } from "@screens/accessScreens/PlateRegister";
 import { ChangeVehicle } from "@screens/accessScreens/ChangeVehicle";
 import { VehiclePreview } from "@screens/accessScreens/VehiclePreview";
+import { DriversLicenseNumberRegister } from "@screens/accessScreens/DriversLicenseNumberRegister";
 //import { FipeTable } from "@screens/accessScreens/FipeTable";
 //import { ShareDataConfirmation } from '@screens/accessScreens/ShareDataConfirmation';
-//import { DriversLicenseInfosRequest } from '@screens/accessScreens/DriversLicenseInfosRequest';
-//import { DriversLicenseStateRequest } from '@screens/accessScreens/DriversLicenseStateRequest';
 //import { IpvaCalculatorResult } from '@screens/accessScreens/IpvaCalculatorResult';
 //import { IpvaCalculatorOptions } from '@screens/accessScreens/IpvaCalculatorOptions';
 //import { AppCopilot } from '@screens/accessScreens/AppCopilot';
@@ -26,8 +25,7 @@ type AppRoutes = {
   changevehicle: undefined;
   fipetable: undefined;
   vehiclepreview: undefined;
-  //driverslicenseinfosrequest: undefined;
-  //driverslicensestaterequest: undefined;
+  driverslicensenumberregister: undefined;
   //ipvacalculatorresult: undefined;
   //ipvacalculatoroptions: undefined;
   /*  notifications: undefined;
@@ -49,6 +47,8 @@ export function AppRoutes() {
 
       <Screen name="changevehicle" component={ChangeVehicle} />
       <Screen name="vehiclepreview" component={VehiclePreview} />
+      
+      <Screen name="driverslicensenumberregister" component={DriversLicenseNumberRegister} />
     </Navigator>
   );
 }

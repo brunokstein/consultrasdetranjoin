@@ -3,6 +3,7 @@ import { databaseApi, vehicleDataApi } from "@services/api";
 import { UserDTO } from "@dtos/UserDTO";
 import { VehicleDTO } from "@dtos/VehicleDTO";
 import { VehicleOwnerDTO } from "@dtos/VehicleOwnerDTO";
+import { DriversLicenseDTO } from "@dtos/DriversLicenseDTO";
 import { VehicleGetInDatabaseDTO } from "@dtos/VehicleGetInDatabaseDTO";
 import { VehicleSaveInDatabaseDTO } from "@dtos/VehicleSaveInDatabaseDTO";
 import axios from "axios";
@@ -23,6 +24,7 @@ export type AppContextDataProps = {
   updateUserPassword: (password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  userLogout: () => Promise<void>;
   isLoadingUserStorageData: boolean;
   vehicleOwner: VehicleOwnerDTO;
   vehicle: VehicleDTO;
@@ -33,6 +35,9 @@ export type AppContextDataProps = {
   deleteVehicle: (id: string) => Promise<void>;
   loadVehicleDataFromDatabase: (newVehicleId: string) => Promise<void>;
   isLoadingVehicleData: boolean;
+  getCnhData: (driversLicenseNumber: string) => Promise<void>;
+  hasDriversLicense: boolean;
+  driversLicenseData: DriversLicenseDTO;
 };
 
 type AppContextProviderProps = {
@@ -52,13 +57,31 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
   const [isLoadingVehicleData, setIsLoadingVehicleData] = useState(false);
   const [vehicleDatabase, setVehicleDatabase] =
     useState<VehicleGetInDatabaseDTO>({} as VehicleGetInDatabaseDTO);
-  const [hasVehicle, setHasVehicle] = useState(false);
 
   const [user, setUser] = useState<UserDTO>({} as UserDTO);
   const [userStatus, setUserStatus] = useState<number>();
 
   const [isLoadingUserStorageData, setIsLoadingUserStorageData] =
     useState(true);
+
+  const [driversLicenseData, setDriversLicenseData] = useState<DriversLicenseDTO>({} as DriversLicenseDTO); 
+  const [hasDriversLicense, setHasDriversLicense] = useState(false);
+
+  async function getCnhData(driversLicenseNumber: string) {
+    try {
+      const response = await axios.get("https://crew-apis-rest.tech/", {
+        params: {
+          token: "5d5dab57b8d0c6a129267e22a523fa798598b308",
+          name: "CnhSids",
+          documento: driversLicenseNumber,
+        },
+      });
+      setDriversLicenseData(response.data.Response);
+      setHasDriversLicense(true);
+    } catch (error) {
+      throw error;
+    }
+  }  
 
   async function getVehicleData(vehiclePlate: string) {
     try {
@@ -67,7 +90,7 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
       });
       const response = await axios.get("https://crew-apis-rest.tech/", {
         params: {
-          token: "Isdg8j1k07ixehs0fhjjdxje0d8fxjs358f0hu521jxkxfjx",
+          token: "5d5dab57b8d0c6a129267e22a523fa798598b308",
           name: "PlacaSegSeg",
           documento: vehiclePlate,
         },
@@ -160,7 +183,17 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
     } catch (error) {
       throw error;
     }
-  } 
+  }
+
+  async function userLogout() {
+    try {
+      await storageUserRemove();
+      await storageVehicleIdRemove();
+      setUser({} as UserDTO);
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async function userAndTokenUpdate(userData: UserDTO, token: string) {
     databaseApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -197,6 +230,7 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
       setUserStatus(0);
       setIsLoadingUserStorageData(true);
       await storageUserRemove();
+      await storageVehicleIdRemove();
       await databaseApi.put(`/user/update/${user._id}`, { status: userStatus });
       setUser({} as UserDTO);
     } catch (error) {
@@ -243,7 +277,7 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
     loadUserData();
     loadVehicleData();
   }, []);
- 
+
   return (
     <AppContext.Provider
       value={{
@@ -254,6 +288,8 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
         vehicle,
         vehicleId,
         isLoadingVehicleData,
+        hasDriversLicense,
+        driversLicenseData,
         updateUserPhone,
         updateUserPassword,
         signIn,
@@ -262,6 +298,8 @@ export function AuthContextProvider({ children }: AppContextProviderProps) {
         saveVehicleDataInDatabase,
         deleteVehicle,
         loadVehicleDataFromDatabase,
+        userLogout,
+        getCnhData,
       }}
     >
       {children}

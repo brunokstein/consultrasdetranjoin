@@ -10,10 +10,6 @@ type Props = {
 export function VehicleOwnerDetailsCard({ vehicleData }: Props) {
     return (
       <VStack bg="white" borderRadius={6} my={2} shadow={4} p={2}>
-        <Center>
-          <PersonSVG height={120} width={180} />
-        </Center>
-        <Divider my={1} />
         <VStack>
           <VStack borderRadius={6} justifyContent="space-between" p={1}>
             <Text fontSize="md" fontFamily="heading" color="blue.700">

@@ -29,7 +29,7 @@ const RegisterSchema = yup.object({
   phone: yup
     .string()
     .required("Informe o número de celular.")
-    .min(11, "Deve ter pelo menos 11 números"),
+    .length(11, "Número inexistente."),
   password: yup
     .string()
     .required("Informe a senha.")

@@ -31,7 +31,7 @@ export function PlateRegister() {
   function handleGoBack() {
     navigation.goBack();
   }
-
+ // erro 
   async function handleRegisteredVehiclePlate() {
     try {
       setIsLoading(true);

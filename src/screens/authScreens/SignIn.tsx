@@ -79,7 +79,7 @@ export function SignIn() {
             alt="Logo do aplicativo"
           />
           <Text fontSize="xl" fontFamily="heading" color="gray.700" mt={4}>
-            JoinAds Consultas
+            PitStop 360
           </Text>
           <Text
             fontSize="md"
@@ -88,7 +88,7 @@ export function SignIn() {
             textAlign="center"
             mt={2}
           >
-            Consulte a situação da sua CNH e do seu veículo!
+            Consulte a situação do seu veículo!
           </Text>
         </Center>
 

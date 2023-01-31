@@ -2,34 +2,74 @@ import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import {
-  VStack,
-  Text,
-  HStack,
-  Icon,
-  Image,
-  ScrollView,
-  Center,
+    VStack,
+    Text,
+    ScrollView,
 } from "native-base";
 
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
-
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import PersonSVG from "../../assets/Personal data-pana.svg";
 
 //import { useInterstitialAd, TestIds } from 'react-native-google-mobile-ads';
 
 import { Button } from "@components/Button";
-//import { DriversLicenseStatus } from '@components/DriversLicenseStatus';
+import { useAuth } from "@hooks/useAuth";
+import { DriversLicenseCard } from "@components/DriversLicenseCard";
 
 export function DriversLicense() {
-  const navigation = useNavigation<AppNavigatorRoutesProps>();
+    const navigation = useNavigation<AppNavigatorRoutesProps>();
 
-  return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <Center flex={1}>
-        <Text>Aguarde, novidades em breve!</Text>
-      </Center>
-    </SafeAreaView>
-  );
+    const { hasDriversLicense, driversLicenseData } = useAuth();
+    async function handleLoadDriversLicenseData() {
+        navigation.navigate('driverslicensenumberregister');
+    }
+
+    return (
+        <SafeAreaView style={{ flex: 1 }}>
+            <ScrollView
+                contentContainerStyle={{ flexGrow: 1 }}
+                showsVerticalScrollIndicator={false}
+            >
+                <VStack flex={1} p={6} justifyContent="center">
+                    {
+                        hasDriversLicense ?
+                        <DriversLicenseCard driversLicenseData={driversLicenseData} />
+                            :
+                            <VStack
+                                alignItems="center"
+                                bg="white"
+                                borderRadius={6}
+                                shadow={3}
+                                p={4}
+                            >
+                                <PersonSVG height={120} width={180} />
+                                <Text fontFamily="heading" fontSize="md" color="gray.700">
+                                    Nenhuma CNH cadastrada
+                                </Text>
+                                <Text
+                                    fontFamily="body"
+                                    fontSize="sm"
+                                    color="gray.400"
+                                    p={2}
+                                    textAlign="center"
+                                    lineHeight="xs"
+                                >
+                                    Para visualizar informações da sua CNH, adicione sua
+                                    carteira de motorista!
+                                </Text>
+                                <Button
+                                    title="Cadastre sua CNH"
+                                    variant="gray"
+                                    titleColor="white"
+                                    mt={2}
+                                    onPress={handleLoadDriversLicenseData}
+                                />
+                            </VStack>
+                    }
+                </VStack>
+            </ScrollView>
+        </SafeAreaView>
+    );
 }
 /* 
     const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-3940256099942544/1033173712";
